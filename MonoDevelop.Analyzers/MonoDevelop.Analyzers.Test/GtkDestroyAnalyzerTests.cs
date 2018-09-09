@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace MonoDevelop.Analyzers.Test
 {
     [TestFixture]
-    public class UnitTest : CodeFixVerifier
+    public class GtkDestroyAnalyzerTests : CodeFixVerifier
     {
 
         //No diagnostics expected to show up
