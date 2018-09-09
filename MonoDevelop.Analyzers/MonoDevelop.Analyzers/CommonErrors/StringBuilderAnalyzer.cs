@@ -12,7 +12,7 @@ namespace MonoDevelop.Analyzers
 		static readonly DiagnosticDescriptor concatDescriptor = new DiagnosticDescriptor(
 			AnalyzerIds.StringBuilderAppendConcatId,
 			"StringBuilder Append Optimization",
-			"Use offset overloads of StringBuilder for better performance by avoiding string allocations",
+			"Avoid concatenating non-constant strings by using multiple Append calls",
 			Category.Performance,
 			defaultSeverity: DiagnosticSeverity.Warning,
 			isEnabledByDefault: true
