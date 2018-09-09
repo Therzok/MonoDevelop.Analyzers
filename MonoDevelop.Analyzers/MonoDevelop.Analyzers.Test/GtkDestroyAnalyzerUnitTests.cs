@@ -1,19 +1,19 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
 using MonoDevelop.Analyzers;
+using NUnit.Framework;
 
 namespace MonoDevelop.Analyzers.Test
 {
-    [TestClass]
+    [TestFixture]
     public class UnitTest : CodeFixVerifier
     {
 
         //No diagnostics expected to show up
-        [TestMethod]
+        [Test]
         public void TestMethod1()
         {
             var test = @"";
@@ -22,7 +22,7 @@ namespace MonoDevelop.Analyzers.Test
         }
 
         //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
+        [Test]
         public void TestMethod2()
         {
             var test = @"using System;
