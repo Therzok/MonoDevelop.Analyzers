@@ -29,7 +29,7 @@ namespace MonoDevelop.Analyzers
             AnalyzerIds.GettextConcatenationDiagnosticId,
             "GetString calls should not use concatenation",
             "Only literal strings can be passed to GetString for the crawler to work",
-            "GETTEXT",
+            Category.Gettext,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );
@@ -78,20 +78,12 @@ namespace MonoDevelop.Analyzers
                     if (phrase.Value.Kind == OperationKind.Literal)
                         return;
 
-                    if (IsLiteralOperation(phrase.Value))
+                    if (phrase.Value.IsLiteralOperation ())
                         return;
 
                     operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, phrase.Syntax.GetLocation()));
                 }, OperationKind.Invocation);
             });
-        }
-
-        static bool IsLiteralOperation(IOperation value)
-        {
-            if (value.Kind == OperationKind.Literal)
-                return true;
-
-            return value is IBinaryOperation binOp && IsLiteralOperation(binOp.LeftOperand) && IsLiteralOperation(binOp.RightOperand);
         }
     }
 }
