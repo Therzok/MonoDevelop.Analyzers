@@ -4,6 +4,9 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>..\..\PublicSign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup>
