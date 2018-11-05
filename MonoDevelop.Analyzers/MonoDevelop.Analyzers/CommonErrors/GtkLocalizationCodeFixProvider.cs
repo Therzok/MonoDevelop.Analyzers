@@ -15,7 +15,7 @@ namespace MonoDevelop.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(GtkLocalizationCodeFixProvider)), Shared]
 	sealed class GtkLocalizationCodeFixProvider : CodeFixProvider
-	{
+	{	
 	    private const string title = "Localize";
 
 	    public override ImmutableArray<string> FixableDiagnosticIds
@@ -33,7 +33,6 @@ namespace MonoDevelop.Analyzers
 	    {
 	        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-	        // TODO: Replace the following code with your own analysis, generating a CodeAction for each fix to suggest
 	        var diagnostic = context.Diagnostics.FirstOrDefault();
 	        var diagnosticSpan = diagnostic.Location.SourceSpan;
 
@@ -46,12 +45,12 @@ namespace MonoDevelop.Analyzers
 	        context.RegisterCodeFix(
 	            CodeAction.Create(
 	                title: title,
-	                createChangedDocument: c => MakeUppercaseAsync(context.Document, root, literal, c),
+	                createChangedDocument: c => LocalizeAsync(context.Document, root, literal, c),
 	                equivalenceKey: title),
 	            diagnostic);
 	    }
 
-	    private Task<Document> MakeUppercaseAsync(Document document, SyntaxNode root, LiteralExpressionSyntax literal, CancellationToken cancellationToken)
+	    private Task<Document> LocalizeAsync(Document document, SyntaxNode root, LiteralExpressionSyntax literal, CancellationToken cancellationToken)
 	    {
 			var getTextGetString = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("GettextCatalog"), IdentifierName("GetString"));
 			var fullInvocation = InvocationExpression(getTextGetString, ArgumentList(SingletonSeparatedList(Argument(literal))));

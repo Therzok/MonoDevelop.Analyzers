@@ -5,19 +5,19 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace MonoDevelop.Analyzers
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+    //[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
     sealed class GettextConcatenationDiagnosticAnalyzer : LocalizationConcatenationDiagnosticAnalyzer
     {
         protected override string TypeName => "MonoDevelop.Core.GettextCatalog";
     }
 
-    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+    //[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
     sealed class MonoAddinsConcatenationDiagnosticAnalyzer : LocalizationConcatenationDiagnosticAnalyzer
     {
         protected override string TypeName => "Mono.Addins.Localization.IAddinLocalizer";
     }
 
-    [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+    //[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
     sealed class TranslationCatalogConcatenationDiagnosticAnalyzer : LocalizationConcatenationDiagnosticAnalyzer
     {
         protected override string TypeName => "Xamarin.Components.Ide.TranslationCatalog";
@@ -28,8 +28,8 @@ namespace MonoDevelop.Analyzers
         static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
             AnalyzerIds.GettextConcatenationDiagnosticId,
             "GetString calls should not use concatenation",
-            "Only literal strings can be passed to GetString for the crawler to work",
-            Category.Gettext,
+			"GetString calls should not use concatenation",
+			Category.Gettext,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );

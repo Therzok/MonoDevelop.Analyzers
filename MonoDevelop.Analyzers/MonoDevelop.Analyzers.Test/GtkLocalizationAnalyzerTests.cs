@@ -28,7 +28,8 @@ namespace MonoDevelop.Analyzers.Test
             var test = @"using System;
 namespace Gtk
 {
-	class Label
+	class Widget {}
+	class Label : Widget
 	{
 		public string Text { get; set; }
 
@@ -47,7 +48,7 @@ namespace Gtk
 				Severity = DiagnosticSeverity.Error,
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation("Test0.cs", 10, 11),
+                    new DiagnosticResultLocation("Test0.cs", 11, 11),
                 }
             };
 
@@ -56,7 +57,8 @@ namespace Gtk
 			string fixedAssign = @"using System;
 namespace Gtk
 {
-	class Label
+	class Widget {}
+	class Label : Widget
 	{
 		public string Text { get; set; }
 

@@ -82,8 +82,8 @@ namespace testfsw
                return new DiagnosticResult
                {
                    Id = "MD0001",
-                   Message = "Only literal strings can be passed to GetString for the crawler to work",
-                   Severity = DiagnosticSeverity.Error,
+                   Message = "GetString calls should not use concatenation",
+				   Severity = DiagnosticSeverity.Error,
                    Locations = new[]
                 {
                     new DiagnosticResultLocation("Test0.cs", line, col),
