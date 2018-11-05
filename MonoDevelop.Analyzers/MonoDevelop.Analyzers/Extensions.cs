@@ -13,5 +13,26 @@ namespace MonoDevelop.Analyzers
 
 			return value is IBinaryOperation binOp && IsLiteralOperation(binOp.LeftOperand) && IsLiteralOperation(binOp.RightOperand);
 		}
+
+		public static INamedTypeSymbol GetContainingTypeOrThis(this ISymbol symbol)
+		{
+			if (symbol is INamedTypeSymbol type)
+				return type;
+
+			return symbol.ContainingType;
+		}
+
+		public static bool IsDerivedFromClass(this INamedTypeSymbol type, INamedTypeSymbol baseType)
+		{
+			//NR5 is returning true also for same type
+			for (; type != null; type = type.BaseType)
+			{
+				if (type == baseType)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 }

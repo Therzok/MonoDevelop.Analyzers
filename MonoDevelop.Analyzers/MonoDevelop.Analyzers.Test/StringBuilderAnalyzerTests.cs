@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace MonoDevelop.Analyzers.Test
 {
-	[TestFixture]
+	//[TestFixture]
 	public class StringBuilderAnalyzerTests : CodeFixVerifier
 	{
 		//No diagnostics expected to show up

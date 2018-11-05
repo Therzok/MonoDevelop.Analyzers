@@ -10,5 +10,6 @@ namespace MonoDevelop.Analyzers
         public const string GtkDestroyDiagnosticId = "MD0002";
 		public const string StringBuilderAppendConcatId = "MD0003";
 		public const string StringBuilderAppendSubstringId = "MD0004";
+		public const string GtkLocalizationAnalyzerId = "MD0005";
 	}
 }
