@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace MonoDevelop.Analyzers
 {
 	// TODO: Atk localization, 
+	// TODO: Cocoa localization
 	[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
 	sealed class GtkLocalizationAnalyzer : UILocalizationAnalyzer
 	{
@@ -19,14 +20,8 @@ namespace MonoDevelop.Analyzers
 		protected override DiagnosticDescriptor DiagnosticDescriptor => descriptor;
 		protected override string CompilationRequiresTypeName => "Gtk.Widget";
 
-		// TODO: FileChooser unhandled
-		// ListStore/TreeStore unhandled
-		// recent chooser
-		// stautsbar
-		// toggleaction
-		// listview/treeview
+		// TODO: FileChooser, RecentChooser unhandled
 		// Tooltip inherits from GLib.Object, not Gtk.Object, so it needs to be whitelisted
-		// treeviewcolumn
 		static readonly HashSet<string> whitelistedProperties = new HashSet<string>
 		{
 			"ArrowTooltipText", "Label", "Title", "Markup", "MarkupWithMnemonic", "LabelProp", "TooltipText", "TooltipMarkup", "Text", "TearoffTitle", "PreviewText", "SecondaryText"
@@ -44,6 +39,7 @@ namespace MonoDevelop.Analyzers
 			{ ("Label", "New"), new[] { (0, "label") } },
 			{ ("Notebook", "SetTabLabelText"), new[] { (1, "tab_text") } },
 			{ ("Notebook", "SetMenuLabelText"), new[] { (1, "menu_text") } },
+			{ ("Statusbar", "Push"), new[] { (1, "text") } },
 			{ ("ToggleButton", "NewWithLabel"), new[] { (0, "label") } },
 			{ ("TreeView", "InsertColumn"), new[] { (1, "title") } },
 		};
@@ -71,6 +67,7 @@ namespace MonoDevelop.Analyzers
 			{ "RadioButton", new[] { (0, "label"), (1, "label") } },
 			{ "RadioMenuItem", new[] { (0, "label"), (1, "label") } },
 			{ "RadioToolButton", new[] { (1, "stock_id") } },
+			{ "ToggleAction", new[] { (1, "label"), (2, "tooltip") } },
 			{ "ToggleButton", new[] { (0, "label") } },
 			{ "ToggleToolButton", new[] { (0, "stock_id") } },
 			{ "ToolButton", new[] { (0, "stock_id"), (1, "label") } },

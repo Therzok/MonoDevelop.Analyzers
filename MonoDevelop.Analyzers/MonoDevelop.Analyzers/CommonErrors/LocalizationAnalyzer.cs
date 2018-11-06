@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace MonoDevelop.Analyzers
 {
-	//[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+	[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
 	sealed class LocalizationConcatenationDiagnosticAnalyzer : DiagnosticAnalyzer
     {
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
