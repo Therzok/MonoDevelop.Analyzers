@@ -47,10 +47,10 @@ namespace MonoDevelop.Analyzers
 
 		static readonly Dictionary<string, (int, string)[]> constructorMapping = new Dictionary<string, (int, string)[]>
 		{
-			{ "CheckButton", new[] { (1, "label") } },
-			{ "Label", new[] { (1, "str") } },
-			{ "MenuToolButton", new[] { (2, "label"), } },
-			{ "RadioButton", new[] { (1, "label"), (2, "label") } },
+			{ "CheckButton", new[] { (0, "label") } },
+			{ "Label", new[] { (0, "str") } },
+			{ "MenuToolButton", new[] { (1, "label"), } },
+			{ "RadioButton", new[] { (0, "label"), (1, "label") } },
 		};
 
 		const string gtkLabelTypeName = "Gtk.Label";
@@ -101,7 +101,7 @@ namespace MonoDevelop.Analyzers
 					if (!(creation.Type is INamedTypeSymbol namedType))
 						return;
 
-					if (namedType.IsDerivedFromClass(gtktype))
+					if (!namedType.IsDerivedFromClass(gtktype))
 						return;
 
 					if (!constructorMapping.TryGetValue(namedType.Name, out var data))

@@ -73,7 +73,38 @@ namespace Gtk
 			VerifyCSharpFix(test, fixedAssign);
 		}
 
-        protected override CodeFixProvider GetCSharpCodeFixProvider()
+		[Test]
+		public void TestConstructor()
+		{
+			var test = @"using System;
+namespace Gtk
+{
+	class Widget {}
+	class CheckButton : Widget
+	{
+		public CheckButton (string label) {}
+
+		public void Trigger()
+		{
+			new CheckButton (""label"");
+		}
+	}
+
+	class GettextCatalog { public static string GetString(string x) => x; }
+}";
+			VerifyCSharpDiagnostic(test, new DiagnosticResult
+			{
+				Id = AnalyzerIds.GtkLocalizationAnalyzerId,
+				Message = "Localize strings that are user facing",
+				Severity = DiagnosticSeverity.Error,
+				Locations = new[]
+				{
+					new DiagnosticResultLocation("Test0.cs", 11, 21),
+				}
+			});
+		}
+
+		protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
             return new GtkLocalizationCodeFixProvider();
         }
