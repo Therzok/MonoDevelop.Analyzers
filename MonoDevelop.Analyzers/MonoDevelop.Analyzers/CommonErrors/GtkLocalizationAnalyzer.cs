@@ -21,29 +21,19 @@ namespace MonoDevelop.Analyzers
 		);
 
 		// TODO: Mark strings in user-code as user facing via attribute
-		static readonly Dictionary<string, string[]> propertyMapping = new Dictionary<string, string[]>
-		{
-			{ "Button", new[] { "Label" } },
-			{ "ColorButton", new[] { "Title" } },
-			{ "FontButton", new[] { "Title" } },
-			{ "Frame", new[] { "Label" } },
-			{ "MenuToolButton", new[] { "ArrowTooltipText" } },
-			{ "Label", new[] { "Text", "Markup", "MarkupWithMnemonic", "LabelProp" } },
-			{ "ProgressBar", new[] { "Text" } },
-			{ "ToolButton", new[] { "Label" } },
-			{ "Widget", new[] { "TooltipText", "TooltipMarkup" } },
-			// Gtk.FileChooser
-		};
-
 		static readonly HashSet<string> whitelistedProperties = new HashSet<string>
 		{
 			"ArrowTooltipText", "Label", "Title", "Markup", "MarkupWithMnemonic", "LabelProp", "TooltipText", "TooltipMarkup", "Text"
 		};
 
-		// methodMapping
-		// { "Gtk.Notebook", new HashSet<string> { "SetTabLabelText", "SetMenuLabelText" }} / tab_text, menu_text
-		// { "Gtk.TreeView", new HashSet<string> { "InsertColumn" }, "title"
-		// { "Gtk.ComboBox", new HashSet<string> { InsertText }}, "text"
+		static readonly Dictionary<(string, string), (int, string)[]> methodMapping = new Dictionary<(string, string), (int, string)[]>
+		{
+			{ ("ComboBox", "AppendText"), new[] { (0, "text") } },
+			{ ("Notebook", "SetTabLabelText"), new[] { (1, "tab_text") } },
+			{ ("Notebook", "SetMenuLabelText"), new[] { (1, "menu_text") } },
+			{ ("TreeView", "InsertColumn"), new[] { (1, "title") } },
+			{ ("Notebook", "SetMenuLabelText"), new[] { (1, "menu_text") } },
+		};
 
 		static readonly Dictionary<string, (int, string)[]> constructorMapping = new Dictionary<string, (int, string)[]>
 		{
@@ -51,6 +41,7 @@ namespace MonoDevelop.Analyzers
 			{ "Label", new[] { (0, "str") } },
 			{ "MenuToolButton", new[] { (1, "label"), } },
 			{ "RadioButton", new[] { (0, "label"), (1, "label") } },
+			{ "TreeViewColumn", new[] { (0, "title") } },
 		};
 
 		const string gtkLabelTypeName = "Gtk.Label";
@@ -122,7 +113,32 @@ namespace MonoDevelop.Analyzers
 					}
 				}, OperationKind.ObjectCreation);
 
-				// invocation -> method
+				compilationContext.RegisterOperationAction(operationContext =>
+				{
+					var invocation = (IInvocationOperation)operationContext.Operation;
+					var method = invocation.TargetMethod;
+					var containingType = method.ContainingType;
+					if (!containingType.IsDerivedFromClass(gtktype))
+						return;
+
+					if (!methodMapping.TryGetValue((containingType.Name, method.Name), out var data))
+						return;
+
+					var parameters = method.Parameters;
+					foreach ((int argPos, string argName) in data)
+					{
+						if (parameters.Length < argPos)
+							continue;
+
+						var param = parameters[argPos];
+						if (param.Type.SpecialType == SpecialType.System_String && param.Name == argName)
+						{
+							var argValue = invocation.Arguments[argPos].Value;
+							if (IsTranslatableLiteral(argValue, out string value))
+								operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, argValue.Syntax.GetLocation()));
+						}
+					}
+				});
 			});
 		}
 
