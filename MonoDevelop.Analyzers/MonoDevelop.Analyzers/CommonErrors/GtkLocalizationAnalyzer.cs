@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -46,10 +47,10 @@ namespace MonoDevelop.Analyzers
 
 		static readonly Dictionary<string, (int, string)[]> constructorMapping = new Dictionary<string, (int, string)[]>
 		{
-			{ "Gtk.CheckButton", new[] { (1, "label") } },
-			{ "Gtk.Label", new[] { (1, "str") } },
-			{ "Gtk.MenuToolButton", new[] { (2, "label"), } },
-			{ "Gtk.RadioButton", new[] { (1, "label"), (2, "label") } },
+			{ "CheckButton", new[] { (1, "label") } },
+			{ "Label", new[] { (1, "str") } },
+			{ "MenuToolButton", new[] { (2, "label"), } },
+			{ "RadioButton", new[] { (1, "label"), (2, "label") } },
 		};
 
 		const string gtkLabelTypeName = "Gtk.Label";
@@ -69,36 +70,94 @@ namespace MonoDevelop.Analyzers
 
 				compilationContext.RegisterOperationAction(operationContext =>
 				{
-					// blacklist gtk.window.title
-
 					var assignment = (IAssignmentOperation)operationContext.Operation;
-
 					if (!(assignment.Target is IPropertyReferenceOperation property))
 						return;
 
-					// Handle string.Format assignment - value = string.Format("<markup>{0}</markup>", "text");
-					if (!(assignment.Value is ILiteralOperation literal) || assignment.Type.SpecialType != SpecialType.System_String)
+					var literalString = assignment.Value;
+					if (!IsTranslatableLiteral(literalString, out string value))
 						return;
 
-					string value = (string)literal.ConstantValue.Value;
-					if (string.IsNullOrWhiteSpace (value))
+					var methodName = property.Property.Name;
+					if (!TryFindPropertyMapping(property.Property.ContainingType, gtktype, methodName))
 						return;
 
-					if (value.StartsWith("gtk-", System.StringComparison.Ordinal))
+					// Accessibility value so the tooltip role doesn't report a glib warning
+					if (methodName == "Title" && value == "tooltip")
 						return;
 
-					if (!value.Any(x => char.IsLetter(x)))
-						return;
-
-					if (value == "MonoDevelop")
-						return;
-
-					if (!TryFindPropertyMapping(property.Property.ContainingType, gtktype, property.Property.Name))
-						return;
-
-					operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, literal.Syntax.GetLocation()));
+					operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, literalString.Syntax.GetLocation()));
 				}, OperationKind.SimpleAssignment);
+
+				// object creation -> constructor
+				compilationContext.RegisterOperationAction(operationContext =>
+				{
+					var creation = (IObjectCreationOperation)operationContext.Operation;
+					if (!(creation.Type is INamedTypeSymbol namedType))
+						return;
+
+					if (namedType.IsDerivedFromClass(gtktype))
+						return;
+
+					if (!constructorMapping.TryGetValue(namedType.Name, out var data))
+						return;
+
+					var constructorParameters = creation.Constructor.Parameters;
+					foreach ((int argPos, string argName) in data)
+					{
+						if (constructorParameters.Length < argPos)
+							continue;
+
+						var param = constructorParameters[argPos];
+						if (param.Type.SpecialType == SpecialType.System_String && param.Name == argName) {
+							var argValue = creation.Arguments[argPos].Value;
+							if (IsTranslatableLiteral(argValue, out string value))
+								operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, argValue.Syntax.GetLocation ()));
+						}
+					}
+				}, OperationKind.ObjectCreation);
+
+				// invocation -> method
 			});
+		}
+
+		static bool IsTranslatableLiteral (IOperation operation, out string value)
+		{
+			value = null;
+			// TODO: Handle string.Format assignment - value = string.Format("<markup>{0}</markup>", "text");
+			if (!(operation is ILiteralOperation literal) || literal.Type.SpecialType != SpecialType.System_String)
+				return false;
+
+			value = (string)literal.ConstantValue.Value;
+			return IsTranslatableString(value);
+		}
+
+		static bool IsTranslatableString (string value)
+		{
+				// Ignore empty strings
+			return !string.IsNullOrEmpty(value) &&
+				// Ignore gtk stock strings
+				!value.StartsWith("gtk-", StringComparison.Ordinal) &&
+				// App name should not be localized
+				value != "MonoDevelop" &&
+				// Check that we have any character that is localizable
+				HasTextIgnoringMarkupAttributes(value);
+		}
+
+		static bool HasTextIgnoringMarkupAttributes (string value)
+		{
+			int openAttributeCount = 0;
+			foreach (var ch in value)
+			{
+				if (ch == '<')
+					openAttributeCount++;
+				else if (ch == '>')
+					openAttributeCount--;
+
+				if (openAttributeCount == 0 && char.IsLetter(ch))
+					return true;
+			}
+			return false;
 		}
 
 		static bool TryFindPropertyMapping (INamedTypeSymbol symbol, INamedTypeSymbol widgetType, string methodName)
