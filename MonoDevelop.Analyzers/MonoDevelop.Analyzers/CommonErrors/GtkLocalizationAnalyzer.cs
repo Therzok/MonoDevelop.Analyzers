@@ -78,12 +78,17 @@ namespace MonoDevelop.Analyzers
 					if (!IsTranslatableLiteral(literalString, out string value))
 						return;
 
+					var type = property.Property.ContainingType;
 					var methodName = property.Property.Name;
-					if (!TryFindPropertyMapping(property.Property.ContainingType, gtktype, methodName))
+					if (!TryFindPropertyMapping(type, gtktype, methodName))
+						return;
+
+					// We don't necessarily need to translate user input values.
+					if (type.Name == "Entry" && methodName == "Text")
 						return;
 
 					// Accessibility value so the tooltip role doesn't report a glib warning
-					if (methodName == "Title" && value == "tooltip")
+					if (type.Name == "Window" && methodName == "Title" && value == "tooltip")
 						return;
 
 					operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, literalString.Syntax.GetLocation()));
