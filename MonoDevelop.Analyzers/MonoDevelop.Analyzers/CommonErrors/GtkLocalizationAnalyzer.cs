@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace MonoDevelop.Analyzers
 {
+	// TODO: Atk localization, 
 	[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
 	sealed class GtkLocalizationAnalyzer : UILocalizationAnalyzer
 	{
@@ -18,26 +19,63 @@ namespace MonoDevelop.Analyzers
 		protected override DiagnosticDescriptor DiagnosticDescriptor => descriptor;
 		protected override string CompilationRequiresTypeName => "Gtk.Widget";
 
+		// TODO: FileChooser unhandled
+		// ListStore/TreeStore unhandled
+		// recent chooser
+		// stautsbar
+		// toggleaction
+		// listview/treeview
+		// Tooltip inherits from GLib.Object, not Gtk.Object, so it needs to be whitelisted
+		// treeviewcolumn
 		static readonly HashSet<string> whitelistedProperties = new HashSet<string>
 		{
-			"ArrowTooltipText", "Label", "Title", "Markup", "MarkupWithMnemonic", "LabelProp", "TooltipText", "TooltipMarkup", "Text"
+			"ArrowTooltipText", "Label", "Title", "Markup", "MarkupWithMnemonic", "LabelProp", "TooltipText", "TooltipMarkup", "Text", "TearoffTitle", "PreviewText", "SecondaryText"
 		};
 
 		static readonly Dictionary<(string, string), (int, string)[]> methodMapping = new Dictionary<(string, string), (int, string)[]>
 		{
+			{ ("CellView", "NewWithText"), new[] { (0, "text") } },
 			{ ("ComboBox", "AppendText"), new[] { (0, "text") } },
+			{ ("ComboBox", "InsertText"), new[] { (1, "text") } },
+			{ ("ComboBox", "PrependText"), new[] { (0, "text") } },
+			{ ("Dialog", "AddButton"), new[] { (0, "button_text") } },
+			{ ("Entry", "InsertText"), new[] { (0, "new_text") } },
+			{ ("Expander", "New"), new[] { (0, "label") } },
+			{ ("Label", "New"), new[] { (0, "label") } },
 			{ ("Notebook", "SetTabLabelText"), new[] { (1, "tab_text") } },
 			{ ("Notebook", "SetMenuLabelText"), new[] { (1, "menu_text") } },
+			{ ("ToggleButton", "NewWithLabel"), new[] { (0, "label") } },
 			{ ("TreeView", "InsertColumn"), new[] { (1, "title") } },
 		};
 
 		static readonly Dictionary<string, (int, string)[]> constructorMapping = new Dictionary<string, (int, string)[]>
 		{
+			// ComboBox (string[])
+			{ "AccelLabel", new[] { (0, "str1ng") } },
+			{ "Button", new[] { (0, "label") } },
+			{ "CellView", new[] { (0, "markup") } },
 			{ "CheckButton", new[] { (0, "label") } },
+			{ "CheckMenuItem", new[] { (0, "label") } },
+			{ "ColorSelectionDialog", new[] { (0, "title") } },
+			{ "Dialog", new[] { (0, "title") } },
+			{ "Entry", new[] { (0, "initial_text") } },
+			{ "FontSelectionDialog", new[] { (0, "title") } },
+			{ "Frame", new[] { (0, "label") } },
+			{ "ImageMenuItem", new[] { (0, "label"), (0, "stock_id") } },
 			{ "Label", new[] { (0, "str") } },
-			{ "MenuToolButton", new[] { (1, "label"), } },
+			{ "LinkButton", new[] { (1, "label") } },
+			{ "MenuItem", new[] { (0, "label"), } },
+			{ "MenuToolButton", new[] { (1, "label"), (0, "stock_id") } },
+			{ "PageSetupUnixDialog", new[] { (0, "title"), } },
+			{ "RadioAction", new[] { (1, "label"), (2, "tooltip") } },
 			{ "RadioButton", new[] { (0, "label"), (1, "label") } },
+			{ "RadioMenuItem", new[] { (0, "label"), (1, "label") } },
+			{ "RadioToolButton", new[] { (1, "stock_id") } },
+			{ "ToggleButton", new[] { (0, "label") } },
+			{ "ToggleToolButton", new[] { (0, "stock_id") } },
+			{ "ToolButton", new[] { (0, "stock_id"), (1, "label") } },
 			{ "TreeViewColumn", new[] { (0, "title") } },
+			{ "Window", new[] { (0, "title") } },
 		};
 
 		protected override bool IsTranslatableProperty(string propertyName) => whitelistedProperties.Contains(propertyName);
