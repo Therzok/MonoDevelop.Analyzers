@@ -14,7 +14,7 @@ namespace MonoDevelop.Analyzers
 			"Vaclav typography rules: ellipsis",
 			"Vaclav typography rules: ellipsis",
 			Category.Gettext,
-			defaultSeverity: DiagnosticSeverity.Error,
+			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);
 		//static readonly DiagnosticDescriptor multiplicationDescriptor = new DiagnosticDescriptor(
@@ -56,28 +56,29 @@ namespace MonoDevelop.Analyzers
 					if (found == -1)
 						break;
 
-					HandleFindChar(value, found, operationContext);
+					found = HandleFindChar(value, found, operationContext);
 					startIndex = found + 1;
 				}
 			}, OperationKind.Literal);
 		}
 
-		void HandleFindChar (string value, int index, OperationAnalysisContext context)
+		int HandleFindChar (string value, int index, OperationAnalysisContext context)
 		{
 			var ch = value[index];
 			switch (ch)
 			{
 				case '.':
 					if (value.Length <= index + 2 || value[index + 1] != '.' || value[index + 2] != '.')
-						return;
-
+						break;
+					
 					context.ReportDiagnostic(Diagnostic.Create(ellipsisDescriptor, context.Operation.Syntax.GetLocation()));
-					break;
+					return index + 2;
 				case '-':
 					break;
 				case 'x':
 					break;
 			}
+			return index;
 		}
 
 		//bool IsSurroundedBy (string value, int middle, Func<char> validator)
