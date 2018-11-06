@@ -5,38 +5,19 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace MonoDevelop.Analyzers
 {
-    //[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-    sealed class GettextConcatenationDiagnosticAnalyzer : LocalizationConcatenationDiagnosticAnalyzer
+	//[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+	sealed class LocalizationConcatenationDiagnosticAnalyzer : DiagnosticAnalyzer
     {
-        protected override string TypeName => "MonoDevelop.Core.GettextCatalog";
-    }
-
-    //[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-    sealed class MonoAddinsConcatenationDiagnosticAnalyzer : LocalizationConcatenationDiagnosticAnalyzer
-    {
-        protected override string TypeName => "Mono.Addins.Localization.IAddinLocalizer";
-    }
-
-    //[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-    sealed class TranslationCatalogConcatenationDiagnosticAnalyzer : LocalizationConcatenationDiagnosticAnalyzer
-    {
-        protected override string TypeName => "Xamarin.Components.Ide.TranslationCatalog";
-    }
-
-    abstract class LocalizationConcatenationDiagnosticAnalyzer : DiagnosticAnalyzer
-    {
-        static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
-            AnalyzerIds.GettextConcatenationDiagnosticId,
-            "GetString calls should not use concatenation",
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
+			AnalyzerIds.GettextConcatenationDiagnosticId,
+			"GetString calls should not use concatenation",
 			"GetString calls should not use concatenation",
 			Category.Gettext,
-            defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true
-        );
+			defaultSeverity: DiagnosticSeverity.Error,
+			isEnabledByDefault: true
+		);
 
-        protected abstract string TypeName { get; }
-
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -46,9 +27,11 @@ namespace MonoDevelop.Analyzers
             context.RegisterCompilationStartAction(compilationContext => {
                 // Limit search to compilations which reference the specific localizers.
                 var compilation = compilationContext.Compilation;
-                var type = compilation.GetTypeByMetadataName(TypeName);
-                if (type == null)
-                    return;
+				var gettextType = compilation.GetTypeByMetadataName("MonoDevelop.Core.GettextCatalog");
+				var translationCatalogType = compilation.GetTypeByMetadataName("Xamarin.Components.Ide.TranslationCatalog");
+				var addinsLocalizerType = compilation.GetTypeByMetadataName("Mono.Addins.Localization.IAddinLocalizer");
+				if (gettextType == null && translationCatalogType == null && addinsLocalizerType == null)
+					return;
 
                 compilationContext.RegisterOperationAction(operationContext => {
                     var invocation = (IInvocationOperation)operationContext.Operation;
@@ -58,13 +41,9 @@ namespace MonoDevelop.Analyzers
                         return;
 
                     var containingType = targetMethod.ContainingType;
-                    if (containingType != type)
+                    if (containingType != gettextType && containingType != translationCatalogType)
                     {
-                        // Check if we're looking for an interface type.
-                        if (type.TypeKind != TypeKind.Interface)
-                            return;
-
-                        if (!containingType.AllInterfaces.Contains(type))
+                        if (!containingType.AllInterfaces.Contains(addinsLocalizerType))
                             return;
                     }
 
@@ -78,7 +57,7 @@ namespace MonoDevelop.Analyzers
                     if (phrase.Value.Kind == OperationKind.Literal)
                         return;
 
-                    if (phrase.Value.IsLiteralOperation ())
+					if (phrase.Value is IBinaryOperation && phrase.Value.IsLiteralOperation ())
                         return;
 
                     operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, phrase.Syntax.GetLocation()));

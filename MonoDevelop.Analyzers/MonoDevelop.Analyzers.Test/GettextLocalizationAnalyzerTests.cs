@@ -6,12 +6,12 @@ namespace MonoDevelop.Analyzers.Test
     {
         protected override (int, int)[] GetLocations()
         {
-            return new[] { (42, 29), (43, 29), (44, 29), (46, 29), };
+            return new[] { (42, 29), (43, 29), (44, 29), (45, 24), (46, 29), };
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new GettextConcatenationDiagnosticAnalyzer();
+            return new LocalizationConcatenationDiagnosticAnalyzer();
         }
 
         //protected override CodeFixProvider GetCSharpCodeFixProvider()

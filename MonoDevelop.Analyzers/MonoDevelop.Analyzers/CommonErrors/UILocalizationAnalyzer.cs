@@ -70,7 +70,7 @@ namespace MonoDevelop.Analyzers
 					var constructorParameters = creation.Constructor.Parameters;
 					foreach ((int argPos, string argName) in data)
 					{
-						if (constructorParameters.Length < argPos)
+						if (constructorParameters.Length <= argPos)
 							continue;
 
 						var param = constructorParameters[argPos];
@@ -97,7 +97,7 @@ namespace MonoDevelop.Analyzers
 					var parameters = method.Parameters;
 					foreach ((int argPos, string argName) in data)
 					{
-						if (parameters.Length < argPos)
+						if (parameters.Length <= argPos)
 							continue;
 
 						var param = parameters[argPos];
