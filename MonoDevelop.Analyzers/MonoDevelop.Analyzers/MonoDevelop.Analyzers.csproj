@@ -10,17 +10,17 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>MonoDevelop.Analyzers</PackageId>
-    <PackageVersion>1.0.0.0</PackageVersion>
+    <PackageId>MonoDevelopDev.Analyzers</PackageId>
+    <PackageVersion>0.1.0.0</PackageVersion>
     <Authors>Therzok</Authors>
     <PackageLicenseUrl>https://github.com/Therzok/MonoDevelop.Analyzers/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Therzok/MonoDevelop.Analyzers</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Therzok/MonoDevelop.Analyzer</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Therzok/MonoDevelop.Analyzers</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>MonoDevelop.Analyzers</Description>
+    <Description>MonoDevelop Development Analyzers</Description>
     <PackageReleaseNotes>Summary of changes made in this release of the package.</PackageReleaseNotes>
     <Copyright>Therzok</Copyright>
-    <PackageTags>MonoDevelop.Analyzers, MonoDevelop, analyzers</PackageTags>
+    <PackageTags>MonoDevelopDev.Analyzers, MonoDevelop, analyzers</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
 
