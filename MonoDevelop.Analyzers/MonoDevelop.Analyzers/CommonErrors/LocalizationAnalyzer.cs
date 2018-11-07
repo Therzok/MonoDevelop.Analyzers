@@ -57,7 +57,7 @@ namespace MonoDevelop.Analyzers
                     if (phrase.Value.Kind == OperationKind.Literal)
                         return;
 
-					if (phrase.Value is IBinaryOperation && phrase.Value.IsLiteralOperation ())
+					if (!(phrase.Value is IBinaryOperation) || phrase.Value.IsLiteralOperation ())
                         return;
 
                     operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, phrase.Syntax.GetLocation()));
