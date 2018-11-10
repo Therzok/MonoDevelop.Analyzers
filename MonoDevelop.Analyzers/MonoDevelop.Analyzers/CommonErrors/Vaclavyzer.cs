@@ -74,8 +74,10 @@ namespace MonoDevelop.Analyzers
 					context.ReportDiagnostic(Diagnostic.Create(ellipsisDescriptor, context.Operation.Syntax.GetLocation()));
 					return index + 2;
 				case '-':
+					// look for the characters on the left and on the right
 					break;
 				case 'x':
+					// look for digits on the left and on the right
 					break;
 			}
 			return index;

@@ -52,6 +52,7 @@ namespace MonoDevelop.Analyzers
 
 	    private Task<Document> LocalizeAsync(Document document, SyntaxNode root, LiteralExpressionSyntax literal, CancellationToken cancellationToken)
 	    {
+			// TODO: Add support for AddinManager.CurrentLocalizer and TranslationCatalog
 			var getTextGetString = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("GettextCatalog"), IdentifierName("GetString"));
 			var fullInvocation = InvocationExpression(getTextGetString, ArgumentList(SingletonSeparatedList(Argument(literal))));
 
