@@ -31,7 +31,7 @@ namespace MonoDevelop.Analyzers
 			"Vaclav typography rules: endash",
 			"Vaclav typography rules: endash",
 			Category.UIUXDesign,
-			defaultSeverity: DiagnosticSeverity.Error,
+			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);
 
@@ -80,16 +80,16 @@ namespace MonoDevelop.Analyzers
 					context.ReportDiagnostic(Diagnostic.Create(ellipsisDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
 					return index + 2;
 				case '-':
-					//if (index == 0 || value.Length <= index + 1)
-					//	break;
+					if (index == 0 || value.Length <= index + 1)
+						break;
 
-					//if (char.IsWhiteSpace(value[index - 1]) || char.IsWhiteSpace(value[index + 1]))
-					//	break;
+					if (!ShouldUseEnDash(value, index))
+						break;
 
-					//syntax = context.Operation.Syntax;
-					//adjustedSpan = new TextSpan(syntax.Span.Start + index, 1);
+					syntax = context.Operation.Syntax;
+					adjustedSpan = new TextSpan(syntax.Span.Start + index, 1);
 
-					//context.ReportDiagnostic(Diagnostic.Create(multiplicationDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
+					context.ReportDiagnostic(Diagnostic.Create(endashDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
 					break;
 				case 'x':
 				case 'X':
@@ -108,44 +108,47 @@ namespace MonoDevelop.Analyzers
 			return index;
 		}
 
+		bool SkipWhitespace (string value, int index, out int left, out int right)
+		{
+			left = index - 1;
+			right = index + 1;
+
+			while (left >= 0)
+			{
+				var ch = value[left];
+				if (!char.IsWhiteSpace(ch))
+					break;
+				left--;
+			}
+
+			if (left < 0)
+				return false;
+
+			var length = value.Length;
+			while (right < length)
+			{
+				var ch = value[right];
+				if (!char.IsWhiteSpace(ch))
+					break;
+				right++;
+			}
+
+			if (right >= value.Length)
+				return false;
+
+			return true;
+		}
+
+		bool ShouldUseEnDash (string value, int index)
+		{
+			return SkipWhitespace(value, index, out int left, out int right) &&
+				char.IsLetter(value[left]) && char.IsLetter(value[right]);
+		}
+
 		bool ShouldUseMultiplication (string value, int index)
 		{
-			bool foundDigit = false;
-
-			for (int i = index - 1; i >= 0; --i)
-			{
-				var charToFind = value[i];
-				if (char.IsWhiteSpace(charToFind))
-					continue;
-
-				if (char.IsDigit(charToFind))
-				{
-					foundDigit = true;
-					break;
-				}
-				return false;
-			}
-
-			if (!foundDigit)
-				return false;
-
-			foundDigit = false;
-
-			for (int i = index + 1; i < value.Length; ++i)
-			{
-				var charToFind = value[i];
-				if (char.IsWhiteSpace(charToFind))
-					continue;
-
-				if (char.IsDigit(charToFind))
-				{
-					foundDigit = true;
-					break;
-				}
-				return false;
-			}
-
-			return foundDigit;
+			return SkipWhitespace(value, index, out int left, out int right) &&
+				char.IsDigit(value[left]) && char.IsDigit(value[right]);
 		}
 	}
 }

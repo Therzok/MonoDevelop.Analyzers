@@ -100,34 +100,33 @@ const string C = ""1ax2"";
 			});
 		}
 
-//		[Test]
-//		public void TestEnDash()
-//		{
-//			var test = @"class A {
-//const string A = ""1922-1923"";
-//const string B = ""June-July"";
-//const string C = ""June - July"";
-//}";
-		//	VerifyCSharpDiagnostic(test, new DiagnosticResult[]
-		//	{
-		//		new DiagnosticResult {
-		//			Id = AnalyzerIds.MultiplicationAnalyzerId,
-		//			Locations = new DiagnosticResultLocation[] {
-		//				new DiagnosticResultLocation ("Test0.cs", 2, 19),
-		//			},
-		//			Severity = DiagnosticSeverity.Info,
-		//			Message = "Vaclav typography rules: multiplication"
-		//		},
-		//		new DiagnosticResult {
-		//			Id = AnalyzerIds.MultiplicationAnalyzerId,
-		//			Locations = new DiagnosticResultLocation[] {
-		//				new DiagnosticResultLocation ("Test0.cs", 3, 20),
-		//			},
-		//			Severity = DiagnosticSeverity.Info,
-		//			Message = "Vaclav typography rules: multiplication"
-		//		},
-		//	});
-		//}
+		[Test]
+		public void TestEnDash()
+		{
+			var test = @"class A {
+const string B = ""June-July"";
+const string C = ""June - July"";
+}";
+			VerifyCSharpDiagnostic(test, new DiagnosticResult[]
+			{
+				new DiagnosticResult {
+					Id = AnalyzerIds.EnDashAnalyzerId,
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 2, 22),
+					},
+					Severity = DiagnosticSeverity.Info,
+					Message = "Vaclav typography rules: endash"
+				},
+				new DiagnosticResult {
+					Id = AnalyzerIds.EnDashAnalyzerId,
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 3, 23),
+					},
+					Severity = DiagnosticSeverity.Info,
+					Message = "Vaclav typography rules: endash"
+				},
+			});
+		}
 
 
 		protected override CodeFixProvider GetCSharpCodeFixProvider()
