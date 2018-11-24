@@ -44,7 +44,7 @@ class Object
 				new DiagnosticResult
 				{
 					Id = AnalyzerIds.StringBuilderAppendConcatId,
-					Message = "Use offset overloads of StringBuilder for better performance by avoiding string allocations",
+					Message = "Avoid concatenating non-constant strings by using multiple Append calls",
 					Severity = DiagnosticSeverity.Warning,
 					Locations = new[] {
 						new DiagnosticResultLocation("Test0.cs", 10, 3),
@@ -71,7 +71,7 @@ class Object
 				new DiagnosticResult
 				{
 					Id = AnalyzerIds.StringBuilderAppendConcatId,
-					Message = "Use offset overloads of StringBuilder for better performance by avoiding string allocations",
+					Message = "Avoid concatenating non-constant strings by using multiple Append calls",
 					Severity = DiagnosticSeverity.Warning,
 					Locations = new[] {
 						new DiagnosticResultLocation("Test0.cs", 14, 3),
