@@ -12,24 +12,24 @@ namespace MonoDevelop.Analyzers
 	{
 		static readonly DiagnosticDescriptor ellipsisDescriptor = new DiagnosticDescriptor(
 			AnalyzerIds.EllipsisAnalyzerId,
-			"Vaclav typography rules: ellipsis",
-			"Vaclav typography rules: ellipsis",
+			"Vaclav typography rules: ellipsis (\\u2026)",
+			"Vaclav typography rules: ellipsis (\\u2026)",
 			Category.UIUXDesign,
 			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);
 		static readonly DiagnosticDescriptor multiplicationDescriptor = new DiagnosticDescriptor(
 			AnalyzerIds.MultiplicationAnalyzerId,
-			"Vaclav typography rules: multiplication",
-			"Vaclav typography rules: multiplication",
+			"Vaclav typography rules: multiplication (\\u00D7)",
+			"Vaclav typography rules: multiplication (\\u00D7)",
 			Category.UIUXDesign,
 			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);
 		static readonly DiagnosticDescriptor endashDescriptor = new DiagnosticDescriptor(
 			AnalyzerIds.EnDashAnalyzerId,
-			"Vaclav typography rules: endash",
-			"Vaclav typography rules: endash",
+			"Vaclav typography rules: endash (\\u2013)",
+			"Vaclav typography rules: endash (\\u2013)",
 			Category.UIUXDesign,
 			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true

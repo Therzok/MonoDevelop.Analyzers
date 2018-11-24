@@ -38,7 +38,7 @@ const string C = ""...Test"";
 						new DiagnosticResultLocation ("Test0.cs", 2, 22),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: ellipsis"
+					Message = "Vaclav typography rules: ellipsis (\\u2026)"
 				},
 				new DiagnosticResult {
 					Id = AnalyzerIds.EllipsisAnalyzerId,
@@ -46,7 +46,7 @@ const string C = ""...Test"";
 						new DiagnosticResultLocation ("Test0.cs", 3, 23),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: ellipsis"
+					Message = "Vaclav typography rules: ellipsis (\\u2026)"
 				},
 				new DiagnosticResult {
 					Id = AnalyzerIds.EllipsisAnalyzerId,
@@ -54,7 +54,7 @@ const string C = ""...Test"";
 						new DiagnosticResultLocation ("Test0.cs", 4, 18),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: ellipsis"
+					Message = "Vaclav typography rules: ellipsis (\\u2026)"
 				},
 			});
 		}
@@ -87,7 +87,7 @@ const string C = ""1ax2"";
 						new DiagnosticResultLocation ("Test0.cs", 2, 19),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: multiplication"
+					Message = "Vaclav typography rules: multiplication (\\u00D7)"
 				},
 				new DiagnosticResult {
 					Id = AnalyzerIds.MultiplicationAnalyzerId,
@@ -95,9 +95,17 @@ const string C = ""1ax2"";
 						new DiagnosticResultLocation ("Test0.cs", 3, 20),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: multiplication"
+					Message = "Vaclav typography rules: multiplication (\\u00D7)"
 				},
 			});
+		}
+
+		[Test]
+		public void MultiplicationCodeFix()
+		{
+			var text = @"class A { const string A = ""1x2""; }";
+			var fixedText = @"class A { const string A = ""1×2""; }";
+			VerifyCSharpFix(text, fixedText);
 		}
 
 		[Test]
@@ -115,7 +123,7 @@ const string C = ""June - July"";
 						new DiagnosticResultLocation ("Test0.cs", 2, 22),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: endash"
+					Message = "Vaclav typography rules: endash (\u2013)",
 				},
 				new DiagnosticResult {
 					Id = AnalyzerIds.EnDashAnalyzerId,
@@ -123,9 +131,17 @@ const string C = ""June - July"";
 						new DiagnosticResultLocation ("Test0.cs", 3, 23),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: endash"
+					Message = "Vaclav typography rules: endash (\u2013)"
 				},
 			});
+		}
+
+		[Test]
+		public void EnDashFix()
+		{
+			var text = @"class A { const string A = ""June-July""; }";
+			var fixedText = @"class A { const string A = ""June–July""; }";
+			VerifyCSharpFix(text, fixedText);
 		}
 
 

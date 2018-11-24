@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Microsoft.CodeAnalysis.Text;
 
 namespace MonoDevelop.Analyzers
 {
@@ -37,23 +38,41 @@ namespace MonoDevelop.Analyzers
 	        var diagnosticSpan = diagnostic.Location.SourceSpan;
 
 			// Find the type declaration identified by the diagnostic.
-			var node = root.FindNode(diagnosticSpan);
+			var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
 			if (!(node is LiteralExpressionSyntax literal))
 				return;
 
-	        // Register a code action that will invoke the fix.
-	        context.RegisterCodeFix(
+			string typographySymbol;
+			switch (diagnostic.Descriptor.Id)
+			{
+				case AnalyzerIds.EllipsisAnalyzerId:
+					typographySymbol = "\u2026";
+					break;
+				case AnalyzerIds.EnDashAnalyzerId:
+					typographySymbol = "\u2013";
+					break;
+				case AnalyzerIds.MultiplicationAnalyzerId:
+					typographySymbol = "\u00D7";
+					break;
+				default:
+					return;
+			}
+
+			// Register a code action that will invoke the fix.
+			context.RegisterCodeFix(
 	            CodeAction.Create(
 	                title: title,
-	                createChangedDocument: c => LocalizeAsync(context.Document, root, literal, c),
+	                createChangedDocument: c => LocalizeAsync(context.Document, root, literal, diagnosticSpan, typographySymbol, c),
 	                equivalenceKey: title),
 	            diagnostic);
 	    }
 
-	    private Task<Document> LocalizeAsync(Document document, SyntaxNode root, LiteralExpressionSyntax literal, CancellationToken cancellationToken)
+	    private Task<Document> LocalizeAsync(Document document, SyntaxNode root, LiteralExpressionSyntax literal, TextSpan diagnosticSpan, string typographySymbol, CancellationToken cancellationToken)
 	    {
+			int offsetInString = diagnosticSpan.Start - literal.Span.Start;
+
 			var initialText = literal.Token.ValueText;
-			var changedText = initialText.Replace("...", "\u2026");
+			var changedText = initialText.Remove(offsetInString, diagnosticSpan.Length).Insert(offsetInString, typographySymbol);
 
 			var newRoot = root.ReplaceNode(literal, LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(changedText)));
 			return Task.FromResult (document.WithSyntaxRoot(newRoot));
