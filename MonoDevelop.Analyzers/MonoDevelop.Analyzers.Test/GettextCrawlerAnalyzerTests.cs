@@ -10,7 +10,7 @@ using System.Linq;
 namespace MonoDevelop.Analyzers.Test
 {
     [TestFixture]
-    public abstract class BaseLocalizationAnalyzerTests : CodeFixVerifier
+    public class BaseLocalizationAnalyzerTests : CodeFixVerifier
     {
         //No diagnostics expected to show up
         [Test]
@@ -33,6 +33,7 @@ namespace MonoDevelop.Core
 	{
 		public static string GetString(string phrase) => phrase;
 		public static string GetString(string phrase, object arg1) => string.Format(phrase, arg1);
+		public static string GetStringPlural(string phrase) => phrase;
 	}
 }
 
@@ -71,18 +72,19 @@ namespace testfsw
 			GettextCatalog.GetString($""{a}"");
 			localizer.GetString(a);
 			GettextCatalog.GetString(""asdf"" + ""asdf"" + a);
+			GettextCatalog.GetStringPlural(a);
 		}
 	}
 }";
             var diagnostics = GetLocations().Select(tuple =>
            {
-               int line = tuple.line;
-               int col = tuple.col;
+               int line = tuple.Line;
+               int col = tuple.Column;
 
                return new DiagnosticResult
                {
                    Id = "MD0001",
-                   Message = "GetString calls should not use concatenation",
+                   Message = "GetString calls should only use literal strings",
 				   Severity = DiagnosticSeverity.Error,
                    Locations = new[]
                 {
@@ -110,11 +112,19 @@ namespace testfsw
     //        VerifyCSharpFix(test, fixtest);
         }
 
-        protected abstract (int line, int col)[] GetLocations();
+		(int Line, int Column)[] GetLocations()
+		{
+			return new[] { (43, 29), (44, 29), (45, 29), (46, 24), (47, 29), (48, 35) };
+		}
 
-        //protected override CodeFixProvider GetCSharpCodeFixProvider()
-        //{
-        //    return new MonoDevelopAnalyzersCodeFixProvider();
-        //}
-    }
+		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
+		{
+			return new GettextCrawlerAnalyzer();
+		}
+
+		//protected override CodeFixProvider GetCSharpCodeFixProvider()
+		//{
+		//    return new MonoDevelopAnalyzersCodeFixProvider();
+		//}
+	}
 }

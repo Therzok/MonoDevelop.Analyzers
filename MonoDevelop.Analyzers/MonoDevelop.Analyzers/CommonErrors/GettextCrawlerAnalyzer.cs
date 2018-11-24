@@ -6,12 +6,12 @@ using Microsoft.CodeAnalysis.Operations;
 namespace MonoDevelop.Analyzers
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-	sealed class LocalizationConcatenationDiagnosticAnalyzer : DiagnosticAnalyzer
+	sealed class GettextCrawlerAnalyzer : DiagnosticAnalyzer
     {
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
 			AnalyzerIds.GettextConcatenationDiagnosticId,
-			"GetString calls should not use concatenation",
-			"GetString calls should not use concatenation",
+			"GetString calls should only use literal strings",
+			"GetString calls should only use literal strings",
 			Category.Gettext,
 			defaultSeverity: DiagnosticSeverity.Error,
 			isEnabledByDefault: true
@@ -37,7 +37,7 @@ namespace MonoDevelop.Analyzers
                     var invocation = (IInvocationOperation)operationContext.Operation;
                     var targetMethod = invocation.TargetMethod;
 
-                    if (targetMethod == null || targetMethod.Name != "GetString")
+                    if (targetMethod == null || (targetMethod.Name != "GetString" && targetMethod.Name != "GetStringPlural"))
                         return;
 
                     var containingType = targetMethod.ContainingType;
@@ -54,15 +54,12 @@ namespace MonoDevelop.Analyzers
                     if (phrase.Parameter.Type.SpecialType != SpecialType.System_String)
                         return;
 
-                    if (phrase.Value.Kind == OperationKind.Literal)
-                        return;
-
-					if (!(phrase.Value is IBinaryOperation) || phrase.Value.IsLiteralOperation ())
-                        return;
+					if (phrase.Value.IsLiteralOperation())
+						return;
 
                     operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, phrase.Syntax.GetLocation()));
                 }, OperationKind.Invocation);
             });
-        }
+		}
     }
 }
