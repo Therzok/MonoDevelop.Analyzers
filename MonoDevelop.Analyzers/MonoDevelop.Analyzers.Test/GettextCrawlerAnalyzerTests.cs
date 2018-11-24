@@ -83,7 +83,7 @@ namespace testfsw
 
                return new DiagnosticResult
                {
-                   Id = "MD0001",
+                   Id = AnalyzerIds.GettextCrawlerDiagnosticId,
                    Message = "GetString calls should only use literal strings",
 				   Severity = DiagnosticSeverity.Error,
                    Locations = new[]

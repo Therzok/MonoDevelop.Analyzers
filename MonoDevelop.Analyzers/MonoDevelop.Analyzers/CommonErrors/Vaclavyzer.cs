@@ -13,7 +13,7 @@ namespace MonoDevelop.Analyzers
 			AnalyzerIds.EllipsisAnalyzerId,
 			"Vaclav typography rules: ellipsis",
 			"Vaclav typography rules: ellipsis",
-			Category.Gettext,
+			Category.UIUXDesign,
 			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);

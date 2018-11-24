@@ -9,5 +9,6 @@ namespace MonoDevelop.Analyzers
         public const string Gtk = nameof(Gtk);
 		public const string Gettext = nameof(Gettext);
 		public const string Performance = nameof(Performance);
+		public const string UIUXDesign = nameof(UIUXDesign);
 	}
 }

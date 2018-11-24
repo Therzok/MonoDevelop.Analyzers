@@ -9,7 +9,7 @@ namespace MonoDevelop.Analyzers
 	sealed class GettextCrawlerAnalyzer : DiagnosticAnalyzer
     {
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
-			AnalyzerIds.GettextConcatenationDiagnosticId,
+			AnalyzerIds.GettextCrawlerDiagnosticId,
 			"GetString calls should only use literal strings",
 			"GetString calls should only use literal strings",
 			Category.Gettext,
