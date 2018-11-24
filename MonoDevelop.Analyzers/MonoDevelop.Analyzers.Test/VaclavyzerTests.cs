@@ -27,12 +27,32 @@ namespace MonoDevelop.Analyzers.Test
 		{
 			var test = @"class A {
 const string A = ""Test..."";
+const string B = ""Test ..."";
+const string C = ""...Test"";
 }";
 			VerifyCSharpDiagnostic(test, new DiagnosticResult[]
 			{
 				new DiagnosticResult {
 					Id = AnalyzerIds.EllipsisAnalyzerId,
-					Locations = new DiagnosticResultLocation[] { new DiagnosticResultLocation ("Test0.cs", 2, 18) },
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 2, 22),
+					},
+					Severity = DiagnosticSeverity.Info,
+					Message = "Vaclav typography rules: ellipsis"
+				},
+				new DiagnosticResult {
+					Id = AnalyzerIds.EllipsisAnalyzerId,
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 3, 23),
+					},
+					Severity = DiagnosticSeverity.Info,
+					Message = "Vaclav typography rules: ellipsis"
+				},
+				new DiagnosticResult {
+					Id = AnalyzerIds.EllipsisAnalyzerId,
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 4, 18),
+					},
 					Severity = DiagnosticSeverity.Info,
 					Message = "Vaclav typography rules: ellipsis"
 				},

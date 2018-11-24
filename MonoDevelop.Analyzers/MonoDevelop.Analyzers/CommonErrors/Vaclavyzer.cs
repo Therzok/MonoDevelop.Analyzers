@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.CodeAnalysis.Text;
 
 namespace MonoDevelop.Analyzers
 {
@@ -17,22 +18,22 @@ namespace MonoDevelop.Analyzers
 			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);
-		//static readonly DiagnosticDescriptor multiplicationDescriptor = new DiagnosticDescriptor(
-		//	AnalyzerIds.MultiplicationAnalyzerId,
-		//	"Vaclav typography rules: multiplication",
-		//	"Vaclav typography rules: multiplication",
-		//	Category.Gettext,
-		//	defaultSeverity: DiagnosticSeverity.Error,
-		//	isEnabledByDefault: true
-		//);
-		//static readonly DiagnosticDescriptor endashDescriptor = new DiagnosticDescriptor(
-		//	AnalyzerIds.EnDashAnalyzerId,
-		//	"Vaclav typography rules: endash",
-		//	"Vaclav typography rules: endash",
-		//	Category.Gettext,
-		//	defaultSeverity: DiagnosticSeverity.Error,
-		//	isEnabledByDefault: true
-		//);
+		static readonly DiagnosticDescriptor multiplicationDescriptor = new DiagnosticDescriptor(
+			AnalyzerIds.MultiplicationAnalyzerId,
+			"Vaclav typography rules: multiplication",
+			"Vaclav typography rules: multiplication",
+			Category.UIUXDesign,
+			defaultSeverity: DiagnosticSeverity.Error,
+			isEnabledByDefault: true
+		);
+		static readonly DiagnosticDescriptor endashDescriptor = new DiagnosticDescriptor(
+			AnalyzerIds.EnDashAnalyzerId,
+			"Vaclav typography rules: endash",
+			"Vaclav typography rules: endash",
+			Category.UIUXDesign,
+			defaultSeverity: DiagnosticSeverity.Error,
+			isEnabledByDefault: true
+		);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(ellipsisDescriptor);
 
@@ -70,8 +71,11 @@ namespace MonoDevelop.Analyzers
 				case '.':
 					if (value.Length <= index + 2 || value[index + 1] != '.' || value[index + 2] != '.')
 						break;
+
+					SyntaxNode syntax = context.Operation.Syntax;
+					var adjustedSpan = new TextSpan(syntax.Span.Start + index, 3);
 					
-					context.ReportDiagnostic(Diagnostic.Create(ellipsisDescriptor, context.Operation.Syntax.GetLocation()));
+					context.ReportDiagnostic(Diagnostic.Create(ellipsisDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
 					return index + 2;
 				case '-':
 					// look for the characters on the left and on the right
