@@ -26,14 +26,14 @@ namespace MonoDevelop.Analyzers.Test
 		public void TestMethod2()
 		{
 			var test = @"class A {
-const string A = ""Test...""
+const string A = ""Test..."";
 }";
 			VerifyCSharpDiagnostic(test, new DiagnosticResult[]
 			{
 				new DiagnosticResult {
 					Id = AnalyzerIds.EllipsisAnalyzerId,
 					Locations = new DiagnosticResultLocation[] { new DiagnosticResultLocation ("Test0.cs", 2, 18) },
-					Severity = DiagnosticSeverity.Error,
+					Severity = DiagnosticSeverity.Info,
 					Message = "Vaclav typography rules: ellipsis"
 				},
 			});
@@ -43,10 +43,10 @@ const string A = ""Test...""
 		public void TestMethod3()
 		{
 			var test = @"class A {
-const string A = ""Test...""
+const string A = ""Test..."";
 }";
 			var fixedTest = @"class A {
-const string A = ""Test…""
+const string A = ""Test…"";
 }";
 			VerifyCSharpFix(test, fixedTest);
 		}
