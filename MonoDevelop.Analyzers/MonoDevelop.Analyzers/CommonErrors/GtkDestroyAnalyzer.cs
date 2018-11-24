@@ -39,7 +39,7 @@ namespace MonoDevelop.Analyzers
                     if (symbol.Name == "Widget" && symbol.ContainingNamespace.Name == "Gtk")
                         return;
 
-                    if (!IsGtkObjectDerived(symbol, gtktype))
+                    if (!symbol.IsDerivedFromClass (gtktype))
                         return;
 
                     var members = symbol.GetMembers("Destroy");
