@@ -19,47 +19,46 @@ namespace MonoDevelop.Analyzers
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        public override void Initialize(AnalysisContext context)
-        {
-            context.EnableConcurrentExecution();
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+		public override void Initialize(AnalysisContext context)
+		{
+			context.EnableConcurrentExecution();
+			context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
-            context.RegisterCompilationStartAction(compilationContext => {
-                // Limit search to compilations which reference the specific localizers.
-                var compilation = compilationContext.Compilation;
-				var gettextType = compilation.GetTypeByMetadataName("MonoDevelop.Core.GettextCatalog");
-				var translationCatalogType = compilation.GetTypeByMetadataName("Xamarin.Components.Ide.TranslationCatalog");
-				var addinsLocalizerType = compilation.GetTypeByMetadataName("Mono.Addins.Localization.IAddinLocalizer");
+			context.RegisterCompilationStartAction(compilationContext =>
+			{
+				// Limit search to compilations which reference the specific localizers.
+				var compilation = compilationContext.Compilation;
+				var translationCatalogType = WellKnownTypes.TranslationCatalog(compilation);
+				var gettextType = WellKnownTypes.GettextCatalog(compilation);
+				var addinsLocalizerType = WellKnownTypes.AddinLocalizer(compilation);
 				if (gettextType == null && translationCatalogType == null && addinsLocalizerType == null)
 					return;
 
-                compilationContext.RegisterOperationAction(operationContext => {
-                    var invocation = (IInvocationOperation)operationContext.Operation;
-                    var targetMethod = invocation.TargetMethod;
+				compilationContext.RegisterOperationAction(operationContext =>
+				{
+					var invocation = (IInvocationOperation)operationContext.Operation;
+					var targetMethod = invocation.TargetMethod;
 
-                    if (targetMethod == null || (targetMethod.Name != "GetString" && targetMethod.Name != "GetStringPlural"))
-                        return;
+					if (targetMethod == null || (targetMethod.Name != "GetString" && targetMethod.Name != "GetStringPlural"))
+						return;
 
-                    var containingType = targetMethod.ContainingType;
-                    if (containingType != gettextType && containingType != translationCatalogType)
-                    {
-                        if (!containingType.AllInterfaces.Contains(addinsLocalizerType))
-                            return;
-                    }
+					var containingType = targetMethod.ContainingType;
+					if (!containingType.IsCatalogType(gettextType, translationCatalogType, addinsLocalizerType))
+						return;
 
-                    if (invocation.Arguments.Length < 1)
-                        return;
+					if (invocation.Arguments.Length < 1)
+						return;
 
-                    var phrase = invocation.Arguments[0];
-                    if (phrase.Parameter.Type.SpecialType != SpecialType.System_String)
-                        return;
+					var phrase = invocation.Arguments[0];
+					if (phrase.Parameter.Type.SpecialType != SpecialType.System_String)
+						return;
 
 					if (phrase.Value.IsLiteralOperation())
 						return;
 
-                    operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, phrase.Syntax.GetLocation()));
-                }, OperationKind.Invocation);
-            });
+					operationContext.ReportDiagnostic(Diagnostic.Create(descriptor, phrase.Syntax.GetLocation()));
+				}, OperationKind.Invocation);
+			});
 		}
-    }
+	}
 }

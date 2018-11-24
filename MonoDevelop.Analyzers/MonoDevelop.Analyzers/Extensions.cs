@@ -34,5 +34,12 @@ namespace MonoDevelop.Analyzers
 			}
 			return false;
 		}
+
+		public static bool IsCatalogType (this INamedTypeSymbol type, INamedTypeSymbol gettextCatalog = null, INamedTypeSymbol translationCatalog = null, INamedTypeSymbol addinLocalizer = null)
+		{
+			return (gettextCatalog != null && type.Equals (gettextCatalog)) ||
+				(translationCatalog != null && type.Equals (translationCatalog)) ||
+				(addinLocalizer != null && type.AllInterfaces.Contains(addinLocalizer));
+		}
 	}
 }

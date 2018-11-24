@@ -33,6 +33,10 @@ namespace MonoDevelop.Analyzers
 				if (baseType == null)
 					return;
 
+				var catalogType = GetMostSpecificCatalog(compilation);
+				if (catalogType == null)
+					return;
+
 				compilationContext.RegisterOperationAction(operationContext =>
 				{
 					var assignment = (IAssignmentOperation)operationContext.Operation;
@@ -153,5 +157,12 @@ namespace MonoDevelop.Analyzers
 
 		bool TryFindPropertyMapping(INamedTypeSymbol symbol, INamedTypeSymbol baseType, string propertyName)
 			=> symbol.IsDerivedFromClass(baseType) && IsTranslatableProperty(propertyName);
+
+		protected INamedTypeSymbol GetMostSpecificCatalog (Compilation compilation)
+		{
+			return WellKnownTypes.TranslationCatalog(compilation) ??
+				WellKnownTypes.GettextCatalog(compilation) ??
+				WellKnownTypes.AddinLocalizer(compilation);
+		}
 	}
 }
