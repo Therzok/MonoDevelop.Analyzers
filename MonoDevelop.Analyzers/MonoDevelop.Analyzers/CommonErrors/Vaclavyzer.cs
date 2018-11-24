@@ -23,7 +23,7 @@ namespace MonoDevelop.Analyzers
 			"Vaclav typography rules: multiplication",
 			"Vaclav typography rules: multiplication",
 			Category.UIUXDesign,
-			defaultSeverity: DiagnosticSeverity.Error,
+			defaultSeverity: DiagnosticSeverity.Info,
 			isEnabledByDefault: true
 		);
 		static readonly DiagnosticDescriptor endashDescriptor = new DiagnosticDescriptor(
@@ -35,9 +35,9 @@ namespace MonoDevelop.Analyzers
 			isEnabledByDefault: true
 		);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(ellipsisDescriptor);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(ellipsisDescriptor, multiplicationDescriptor, endashDescriptor);
 
-		static readonly char[] toFind = { '.', '-', 'x' };
+		static readonly char[] toFind = { '.', '-', 'x', 'X' };
 
 		public override void Initialize(AnalysisContext context)
 		{
@@ -65,37 +65,87 @@ namespace MonoDevelop.Analyzers
 
 		int HandleFindChar (string value, int index, OperationAnalysisContext context)
 		{
-			var ch = value[index];
-			switch (ch)
+			SyntaxNode syntax;
+			TextSpan adjustedSpan;
+
+			switch (value[index])
 			{
 				case '.':
 					if (value.Length <= index + 2 || value[index + 1] != '.' || value[index + 2] != '.')
 						break;
 
-					SyntaxNode syntax = context.Operation.Syntax;
-					var adjustedSpan = new TextSpan(syntax.Span.Start + index, 3);
+					syntax = context.Operation.Syntax;
+					adjustedSpan = new TextSpan(syntax.Span.Start + index, 3);
 					
 					context.ReportDiagnostic(Diagnostic.Create(ellipsisDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
 					return index + 2;
 				case '-':
-					// look for the characters on the left and on the right
+					//if (index == 0 || value.Length <= index + 1)
+					//	break;
+
+					//if (char.IsWhiteSpace(value[index - 1]) || char.IsWhiteSpace(value[index + 1]))
+					//	break;
+
+					//syntax = context.Operation.Syntax;
+					//adjustedSpan = new TextSpan(syntax.Span.Start + index, 1);
+
+					//context.ReportDiagnostic(Diagnostic.Create(multiplicationDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
 					break;
 				case 'x':
-					// look for digits on the left and on the right
+				case 'X':
+					if (index == 0 || value.Length <= index + 1)
+						break;
+
+					if (!ShouldUseMultiplication(value, index))
+						break;
+
+					syntax = context.Operation.Syntax;
+					adjustedSpan = new TextSpan(syntax.Span.Start + index, 1);
+
+					context.ReportDiagnostic(Diagnostic.Create(multiplicationDescriptor, syntax.SyntaxTree.GetLocation(adjustedSpan)));
 					break;
 			}
 			return index;
 		}
 
-		//bool IsSurroundedBy (string value, int middle, Func<char> validator)
-		//{
-		//	int left = middle - 1;
-		//	int right = middle + 1;
+		bool ShouldUseMultiplication (string value, int index)
+		{
+			bool foundDigit = false;
 
-		//	if (left < 0 || right >= value.Length)
-		//		return false;
+			for (int i = index - 1; i >= 0; --i)
+			{
+				var charToFind = value[i];
+				if (char.IsWhiteSpace(charToFind))
+					continue;
 
+				if (char.IsDigit(charToFind))
+				{
+					foundDigit = true;
+					break;
+				}
+				return false;
+			}
 
-		//}
+			if (!foundDigit)
+				return false;
+
+			foundDigit = false;
+
+			for (int i = index + 1; i < value.Length; ++i)
+			{
+				var charToFind = value[i];
+				if (char.IsWhiteSpace(charToFind))
+					continue;
+
+				if (char.IsDigit(charToFind))
+				{
+					foundDigit = true;
+					break;
+				}
+				return false;
+			}
+
+			return foundDigit;
+		}
 	}
 }

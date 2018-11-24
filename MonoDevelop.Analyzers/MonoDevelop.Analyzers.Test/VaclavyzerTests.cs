@@ -23,7 +23,7 @@ namespace MonoDevelop.Analyzers.Test
 
 		//Diagnostic and CodeFix both triggered and checked for
 		[Test]
-		public void TestMethod2()
+		public void TestEllipsis()
 		{
 			var test = @"class A {
 const string A = ""Test..."";
@@ -60,7 +60,7 @@ const string C = ""...Test"";
 		}
 
 		[Test]
-		public void TestMethod3()
+		public void TestEllipsisFix()
 		{
 			var test = @"class A {
 const string A = ""Test..."";
@@ -70,6 +70,65 @@ const string A = ""Test…"";
 }";
 			VerifyCSharpFix(test, fixedTest);
 		}
+
+		[Test]
+		public void TestMultiplication()
+		{
+			var test = @"class A {
+const string A = ""1x2"";
+const string B = ""1 x2"";
+const string C = ""1ax2"";
+}";
+			VerifyCSharpDiagnostic(test, new DiagnosticResult[]
+			{
+				new DiagnosticResult {
+					Id = AnalyzerIds.MultiplicationAnalyzerId,
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 2, 19),
+					},
+					Severity = DiagnosticSeverity.Info,
+					Message = "Vaclav typography rules: multiplication"
+				},
+				new DiagnosticResult {
+					Id = AnalyzerIds.MultiplicationAnalyzerId,
+					Locations = new DiagnosticResultLocation[] {
+						new DiagnosticResultLocation ("Test0.cs", 3, 20),
+					},
+					Severity = DiagnosticSeverity.Info,
+					Message = "Vaclav typography rules: multiplication"
+				},
+			});
+		}
+
+//		[Test]
+//		public void TestEnDash()
+//		{
+//			var test = @"class A {
+//const string A = ""1922-1923"";
+//const string B = ""June-July"";
+//const string C = ""June - July"";
+//}";
+		//	VerifyCSharpDiagnostic(test, new DiagnosticResult[]
+		//	{
+		//		new DiagnosticResult {
+		//			Id = AnalyzerIds.MultiplicationAnalyzerId,
+		//			Locations = new DiagnosticResultLocation[] {
+		//				new DiagnosticResultLocation ("Test0.cs", 2, 19),
+		//			},
+		//			Severity = DiagnosticSeverity.Info,
+		//			Message = "Vaclav typography rules: multiplication"
+		//		},
+		//		new DiagnosticResult {
+		//			Id = AnalyzerIds.MultiplicationAnalyzerId,
+		//			Locations = new DiagnosticResultLocation[] {
+		//				new DiagnosticResultLocation ("Test0.cs", 3, 20),
+		//			},
+		//			Severity = DiagnosticSeverity.Info,
+		//			Message = "Vaclav typography rules: multiplication"
+		//		},
+		//	});
+		//}
+
 
 		protected override CodeFixProvider GetCSharpCodeFixProvider()
 		{
