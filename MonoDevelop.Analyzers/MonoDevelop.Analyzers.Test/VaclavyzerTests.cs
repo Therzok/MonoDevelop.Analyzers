@@ -123,7 +123,7 @@ const string C = ""June - July"";
 						new DiagnosticResultLocation ("Test0.cs", 2, 22),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: endash (\u2013)",
+					Message = "Vaclav typography rules: endash (\\u2013)",
 				},
 				new DiagnosticResult {
 					Id = AnalyzerIds.EnDashAnalyzerId,
@@ -131,7 +131,7 @@ const string C = ""June - July"";
 						new DiagnosticResultLocation ("Test0.cs", 3, 23),
 					},
 					Severity = DiagnosticSeverity.Info,
-					Message = "Vaclav typography rules: endash (\u2013)"
+					Message = "Vaclav typography rules: endash (\\u2013)"
 				},
 			});
 		}
