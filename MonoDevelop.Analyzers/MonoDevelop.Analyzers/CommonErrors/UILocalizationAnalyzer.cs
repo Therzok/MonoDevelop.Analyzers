@@ -35,8 +35,9 @@ namespace MonoDevelop.Analyzers
 
 				var translationCatalogType = WellKnownTypes.TranslationCatalog(compilation);
 				var gettextType = WellKnownTypes.GettextCatalog(compilation);
-				var addinsLocalizerType = WellKnownTypes.AddinLocalizer(compilation);
-				if (gettextType == null && translationCatalogType == null && addinsLocalizerType == null)
+				var addinsLocalizerType = WellKnownTypes.AddinLocalizer (compilation);
+				var unixCatalog = WellKnownTypes.MonoUnixCatalog(compilation);
+				if (gettextType == null && translationCatalogType == null && addinsLocalizerType == null && unixCatalog == null)
 					return;
 
 				compilationContext.RegisterOperationAction(operationContext =>

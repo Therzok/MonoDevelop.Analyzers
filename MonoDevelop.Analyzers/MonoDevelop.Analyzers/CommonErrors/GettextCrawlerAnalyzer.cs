@@ -13,7 +13,7 @@ namespace MonoDevelop.Analyzers
 			"GetString calls should only use literal strings",
 			"GetString calls should only use literal strings",
 			Category.Gettext,
-			defaultSeverity: DiagnosticSeverity.Error,
+			defaultSeverity: DiagnosticSeverity.Warning,
 			isEnabledByDefault: true
 		);
 
@@ -26,16 +26,28 @@ namespace MonoDevelop.Analyzers
 
 			context.RegisterCompilationStartAction(compilationContext =>
 			{
+				// false positive list:
+				// ComponentModelLocalization:40
+				// 
 				// Limit search to compilations which reference the specific localizers.
 				var compilation = compilationContext.Compilation;
 				var translationCatalogType = WellKnownTypes.TranslationCatalog(compilation);
 				var gettextType = WellKnownTypes.GettextCatalog(compilation);
 				var addinsLocalizerType = WellKnownTypes.AddinLocalizer(compilation);
-				if (gettextType == null && translationCatalogType == null && addinsLocalizerType == null)
+				var addinsLocalizerInterface = WellKnownTypes.IAddinLocalizer(compilation);
+				var unixCatalog = WellKnownTypes.MonoUnixCatalog(compilation);
+				if (gettextType == null && translationCatalogType == null && addinsLocalizerType == null && addinsLocalizerInterface == null && unixCatalog == null)
 					return;
 
 				compilationContext.RegisterOperationAction(operationContext =>
 				{
+					// if we're in a catalog context, do not flag
+					var symbol = operationContext.ContainingSymbol;
+					if (symbol.Name == "GetString" || symbol.Name == "GetPluralString") {
+						if (symbol.GetContainingTypeOrThis().IsCatalogType(gettextType, translationCatalogType, unixCatalog, addinsLocalizerType, addinsLocalizerInterface))
+							return;
+					}
+
 					var invocation = (IInvocationOperation)operationContext.Operation;
 					var targetMethod = invocation.TargetMethod;
 
@@ -43,7 +55,7 @@ namespace MonoDevelop.Analyzers
 						return;
 
 					var containingType = targetMethod.ContainingType;
-					if (!containingType.IsCatalogType(gettextType, translationCatalogType, addinsLocalizerType))
+					if (!containingType.IsCatalogType(gettextType, translationCatalogType, unixCatalog, addinsLocalizerType, addinsLocalizerInterface))
 						return;
 
 					if (invocation.Arguments.Length < 1)

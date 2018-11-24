@@ -60,7 +60,11 @@ namespace MonoDevelop.Analyzers
 				var memberAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("AddinManager"), IdentifierName("CurrentLocalizer"));
 				RegisterCodeFix(context, memberAccess, root, literal);
 			}
-	    }
+			if (WellKnownTypes.MonoUnixCatalog(compilation) != null)
+			{
+				RegisterCodeFix(context, IdentifierName("Catalog"), root, literal);
+			}
+		}
 
 		static void RegisterCodeFix (CodeFixContext context, ExpressionSyntax name, SyntaxNode root, LiteralExpressionSyntax literal)
 		{

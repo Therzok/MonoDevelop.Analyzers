@@ -51,6 +51,10 @@ namespace MonoDevelop.Analyzers
 				// sb.Append (a + b);
 				// sb.Append (a.Substring(...));
 				// TODO: Optimize appendformat to appends - harder
+				var arguments = op.Arguments;
+				if (arguments.Length < 1)
+					return;
+
 				var arg = op.Arguments[0];
 				if (TryValidateAppendConcatenation(arg))
 					operationContext.ReportDiagnostic(Diagnostic.Create(concatDescriptor, op.Syntax.GetLocation()));
@@ -62,12 +66,12 @@ namespace MonoDevelop.Analyzers
 
 		bool TryValidateStringBuilderAppend(ITypeSymbol type, IMethodSymbol method)
 		{
-			if (type.Name != "StringBuilder" && type.ContainingNamespace.Name != "System")
-				return false;
-
 			// Verify it's the append method
 			var methodName = method.Name;
 			if (methodName != "Append" && methodName != "AppendLine" && methodName != "AppendFormat")
+				return false;
+
+			if (type.Name != "StringBuilder" && type.ContainingNamespace?.Name != "System")
 				return false;
 
 			return true;

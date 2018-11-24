@@ -85,7 +85,7 @@ namespace testfsw
                {
                    Id = AnalyzerIds.GettextCrawlerDiagnosticId,
                    Message = "GetString calls should only use literal strings",
-				   Severity = DiagnosticSeverity.Error,
+				   Severity = DiagnosticSeverity.Warning,
                    Locations = new[]
                 {
                     new DiagnosticResultLocation("Test0.cs", line, col),

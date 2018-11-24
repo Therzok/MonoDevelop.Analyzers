@@ -115,12 +115,8 @@ namespace Xamarin.Components.Ide
 
 namespace Mono.Addins
 {
-	namespace Localization
-	{
-		interface IAddinLocalizer { string GetString(string x) => x; }
-	}
-
-	class AddinManager { public static IAddinLocalizer { get; } = null; }
+	class AddinLocalizer { public static string GetString(string x) => x; }
+	class AddinManager { public static IAddinLocalizer CurrentLocalizer { get; } = null; }
 }
 ";
 			VerifyCSharpDiagnostic(test, new DiagnosticResult
@@ -161,12 +157,8 @@ namespace Xamarin.Components.Ide
 
 namespace Mono.Addins
 {
-	namespace Localization
-	{
-		interface IAddinLocalizer { string GetString(string x) => x; }
-	}
-
-	class AddinManager { public static IAddinLocalizer { get; } = null; }
+	class AddinLocalizer { public static string GetString(string x) => x; }
+	class AddinManager { public static IAddinLocalizer CurrentLocalizer { get; } = null; }
 }
 ";
 			VerifyCSharpFix(test, fixedConstructor.Replace("__REPLACE__", "TranslationCatalog"), 0);
