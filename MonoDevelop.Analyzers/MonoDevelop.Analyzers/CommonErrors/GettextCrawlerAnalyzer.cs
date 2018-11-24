@@ -7,7 +7,7 @@ namespace MonoDevelop.Analyzers
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
 	sealed class GettextCrawlerAnalyzer : DiagnosticAnalyzer
-    {
+	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
 			AnalyzerIds.GettextCrawlerDiagnosticId,
 			"GetString calls should only use literal strings",

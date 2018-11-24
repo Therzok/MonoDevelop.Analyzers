@@ -34,26 +34,47 @@ namespace MonoDevelop.Analyzers
 	        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
 	        var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic == null)
+				return;
+
 	        var diagnosticSpan = diagnostic.Location.SourceSpan;
 
 			// Find the type declaration identified by the diagnostic.
-			var node = root.FindNode(diagnosticSpan);
+			var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
 			if (!(node is LiteralExpressionSyntax literal))
 				return;
 
-	        // Register a code action that will invoke the fix.
-	        context.RegisterCodeFix(
-	            CodeAction.Create(
-	                title: title,
-	                createChangedDocument: c => LocalizeAsync(context.Document, root, literal, c),
-	                equivalenceKey: title),
-	            diagnostic);
+			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+			var compilation = semanticModel.Compilation;
+
+			if (WellKnownTypes.TranslationCatalog(compilation) != null)
+			{
+				RegisterCodeFix(context, IdentifierName("TranslationCatalog"), root, literal);
+			}
+			if (WellKnownTypes.GettextCatalog(compilation) != null)
+			{
+				RegisterCodeFix(context, IdentifierName("GettextCatalog"), root, literal);
+			}
+			if (WellKnownTypes.AddinLocalizer(compilation) != null)
+			{
+				var memberAccess = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("AddinManager"), IdentifierName("CurrentLocalizer"));
+				RegisterCodeFix(context, memberAccess, root, literal);
+			}
 	    }
 
-	    private Task<Document> LocalizeAsync(Document document, SyntaxNode root, LiteralExpressionSyntax literal, CancellationToken cancellationToken)
+		static void RegisterCodeFix (CodeFixContext context, ExpressionSyntax name, SyntaxNode root, LiteralExpressionSyntax literal)
+		{
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title: title,
+					createChangedDocument: c => LocalizeAsync(name, context.Document, root, literal, c),
+					equivalenceKey: title),
+				context.Diagnostics.First());
+		}
+
+		static private Task<Document> LocalizeAsync(ExpressionSyntax catalog, Document document, SyntaxNode root, LiteralExpressionSyntax literal, CancellationToken cancellationToken)
 	    {
-			// TODO: Add support for AddinManager.CurrentLocalizer and TranslationCatalog
-			var getTextGetString = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("GettextCatalog"), IdentifierName("GetString"));
+			var getTextGetString = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, catalog, IdentifierName("GetString"));
 			var fullInvocation = InvocationExpression(getTextGetString, ArgumentList(SingletonSeparatedList(Argument(literal))));
 
 			var newRoot = root.ReplaceNode(literal, fullInvocation);

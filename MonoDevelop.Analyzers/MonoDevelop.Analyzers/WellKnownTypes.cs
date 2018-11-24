@@ -6,7 +6,7 @@ namespace MonoDevelop.Analyzers
 	static class WellKnownTypes
 	{
 		public static INamedTypeSymbol TranslationCatalog(Compilation compilation)
-			=> compilation.GetTypeByMetadataName("Xamarin.Ide.TranslationCatalog");
+			=> compilation.GetTypeByMetadataName("Xamarin.Components.Ide.TranslationCatalog");
 
 		public static INamedTypeSymbol GettextCatalog(Compilation compilation)
 			=> compilation.GetTypeByMetadataName("MonoDevelop.Core.GettextCatalog");

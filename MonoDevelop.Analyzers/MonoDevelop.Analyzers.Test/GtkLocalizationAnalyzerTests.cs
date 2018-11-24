@@ -28,6 +28,8 @@ namespace MonoDevelop.Analyzers.Test
             var test = @"using System;
 namespace Gtk
 {
+	using MonoDevelop.Core;
+
 	class Widget {}
 	class Label : Widget
 	{
@@ -38,9 +40,13 @@ namespace Gtk
 			Text = ""label"";
 		}
 	}
+}
 
+namespace MonoDevelop.Core
+{
 	class GettextCatalog { public static string GetString(string x) => x; }
-}";
+}
+";
             var expected1 = new DiagnosticResult
             {
                 Id = AnalyzerIds.GtkLocalizationAnalyzerId,
@@ -48,7 +54,7 @@ namespace Gtk
 				Severity = DiagnosticSeverity.Error,
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation("Test0.cs", 11, 11),
+                    new DiagnosticResultLocation("Test0.cs", 13, 11),
                 }
             };
 
@@ -57,6 +63,8 @@ namespace Gtk
 			string fixedAssign = @"using System;
 namespace Gtk
 {
+	using MonoDevelop.Core;
+
 	class Widget {}
 	class Label : Widget
 	{
@@ -67,9 +75,13 @@ namespace Gtk
 			Text = GettextCatalog.GetString(""label"");
 		}
 	}
+}
 
+namespace MonoDevelop.Core
+{
 	class GettextCatalog { public static string GetString(string x) => x; }
-}";
+}
+";
 			VerifyCSharpFix(test, fixedAssign);
 		}
 
@@ -89,9 +101,28 @@ namespace Gtk
 			new CheckButton (""label"");
 		}
 	}
+}
 
+namespace MonoDevelop.Core
+{
 	class GettextCatalog { public static string GetString(string x) => x; }
-}";
+}
+
+namespace Xamarin.Components.Ide
+{
+	class TranslationCatalog { public static string GetString(string x) => x; }
+}
+
+namespace Mono.Addins
+{
+	namespace Localization
+	{
+		interface IAddinLocalizer { string GetString(string x) => x; }
+	}
+
+	class AddinManager { public static IAddinLocalizer { get; } = null; }
+}
+";
 			VerifyCSharpDiagnostic(test, new DiagnosticResult
 			{
 				Id = AnalyzerIds.GtkLocalizationAnalyzerId,
@@ -102,6 +133,45 @@ namespace Gtk
 					new DiagnosticResultLocation("Test0.cs", 11, 21),
 				}
 			});
+
+			string fixedConstructor = @"using System;
+namespace Gtk
+{
+	class Widget {}
+	class CheckButton : Widget
+	{
+		public CheckButton (string label) {}
+
+		public void Trigger()
+		{
+			new CheckButton (__REPLACE__.GetString(""label""));
+		}
+	}
+}
+
+namespace MonoDevelop.Core
+{
+	class GettextCatalog { public static string GetString(string x) => x; }
+}
+
+namespace Xamarin.Components.Ide
+{
+	class TranslationCatalog { public static string GetString(string x) => x; }
+}
+
+namespace Mono.Addins
+{
+	namespace Localization
+	{
+		interface IAddinLocalizer { string GetString(string x) => x; }
+	}
+
+	class AddinManager { public static IAddinLocalizer { get; } = null; }
+}
+";
+			VerifyCSharpFix(test, fixedConstructor.Replace("__REPLACE__", "TranslationCatalog"), 0);
+			VerifyCSharpFix(test, fixedConstructor.Replace("__REPLACE__", "GettextCatalog"), 1);
+			VerifyCSharpFix(test, fixedConstructor.Replace("__REPLACE__", "AddinManager.CurrentLocalizer"), 2);
 		}
 
 		protected override CodeFixProvider GetCSharpCodeFixProvider()
