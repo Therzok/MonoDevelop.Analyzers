@@ -14,5 +14,8 @@ namespace MonoDevelop.Analyzers
 		public const string EllipsisAnalyzerId = "MD0006";
 		public const string MultiplicationAnalyzerId = "MD0007";
 		public const string EnDashAnalyzerId = "MD0008";
+		public const string MacApiAdviceAnalyzerId = "MD0009";
+		public const string MacApiIntroducedAnalyzerId = "MD0010";
+		public const string MacApiDeprecatedAnalyzerId = "MD0011";
 	}
 }
