@@ -14,7 +14,7 @@ namespace MonoDevelop.Analyzers
 			"Localize user facing string",
 			"Localize strings that are user facing",
 			Category.Gtk,
-			defaultSeverity: DiagnosticSeverity.Error,
+			defaultSeverity: DiagnosticSeverity.Warning,
 			isEnabledByDefault: true
 		);
 		protected override DiagnosticDescriptor DiagnosticDescriptor => descriptor;

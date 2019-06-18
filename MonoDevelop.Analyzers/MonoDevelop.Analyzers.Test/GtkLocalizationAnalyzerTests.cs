@@ -51,7 +51,7 @@ namespace MonoDevelop.Core
             {
                 Id = AnalyzerIds.GtkLocalizationAnalyzerId,
                 Message = "Localize strings that are user facing",
-				Severity = DiagnosticSeverity.Error,
+				Severity = DiagnosticSeverity.Warning,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation("Test0.cs", 13, 11),
@@ -123,7 +123,7 @@ namespace Mono.Addins
 			{
 				Id = AnalyzerIds.GtkLocalizationAnalyzerId,
 				Message = "Localize strings that are user facing",
-				Severity = DiagnosticSeverity.Error,
+				Severity = DiagnosticSeverity.Warning,
 				Locations = new[]
 				{
 					new DiagnosticResultLocation("Test0.cs", 11, 21),

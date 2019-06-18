@@ -104,7 +104,7 @@ class MyOtherWidget : MyWidget
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new GtkDestroyAnalyzer();
+            return new EmptyCatchAnalyzer();
         }
     }
 }

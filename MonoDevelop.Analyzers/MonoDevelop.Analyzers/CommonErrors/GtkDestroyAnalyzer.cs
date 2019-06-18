@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace MonoDevelop.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-    sealed class GtkDestroyAnalyzer : DiagnosticAnalyzer
+    sealed class EmptyCatchAnalyzer : DiagnosticAnalyzer
     {
         static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
             AnalyzerIds.GtkDestroyDiagnosticId,
