@@ -18,7 +18,7 @@ namespace MonoDevelop.Analyzers
 			"A catch clause that catches everything without doing anything to the exception",
 			"Empty general catch clause suppresses any error",
 			Category.Reliability,
-			DiagnosticSeverity.Error,
+			DiagnosticSeverity.Warning,
 			isEnabledByDefault: true
 		);
 

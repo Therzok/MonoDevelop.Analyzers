@@ -47,7 +47,7 @@ class Object
 			{
 				Id = "MD0009",
 				Message = "Empty general catch clause suppresses any error",
-				Severity = DiagnosticSeverity.Error,
+				Severity = DiagnosticSeverity.Warning,
 				Locations = new[]
 				{
 					new DiagnosticResultLocation("Test0.cs", 6, 10),
@@ -57,7 +57,7 @@ class Object
 			{
 				Id = "MD0009",
 				Message = "Empty general catch clause suppresses any error",
-				Severity = DiagnosticSeverity.Error,
+				Severity = DiagnosticSeverity.Warning,
 				Locations = new[]
 				{
 					new DiagnosticResultLocation("Test0.cs", 7, 10),
