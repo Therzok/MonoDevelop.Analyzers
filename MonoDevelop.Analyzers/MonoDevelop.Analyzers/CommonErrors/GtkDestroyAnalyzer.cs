@@ -61,7 +61,7 @@ namespace MonoDevelop.Analyzers
             var type = symbol;
             while (type != null)
             {
-                if (type == gtkType)
+                if (type.Equals (gtkType))
                     return true;
                 type = type.BaseType;
             }
